@@ -58,4 +58,4 @@ def cut(file, tracklist, _regex='(\d:\d{2}:\d{2})[\s?](.*)', verbose=True):
 
 
 if __name__ == '__main__':
-    cut(sys.argv[1], open(sys.argv[2], 'w').readlines())
+    cut(sys.argv[1], open(sys.argv[2], 'r').readlines())
