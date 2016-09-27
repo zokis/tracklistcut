@@ -13,6 +13,8 @@ def get_human_time(time):
 
 
 def cut(file, tracklist, _regex='(\d:\d{2}:\d{2})[\s?](.*)', verbose=True):
+    if not isinstance(tracklist, (list, tuple)):
+        tracklist = tracklist.split('\n')
     sysout('Starting tracklistcut...\n', verbose=verbose)
     sysout('Getting sound from mp3 file with AudioSegment...', verbose=verbose)
     sound = AudioSegment.from_mp3(file)
@@ -35,14 +37,14 @@ def cut(file, tracklist, _regex='(\d:\d{2}:\d{2})[\s?](.*)', verbose=True):
     for n, _ in enumerate(_times):
         if n == 0:
             continue
-        A1 = _times[n - 1]
-        A2 = _times[n]
+        strat_time = _times[n - 1]
+        end_time = _times[n]
         trackname = next(_names)
         sysout('\nCutting song #%s (%s.mp3) [<{%s - %s}>]\n' % (
             n,
             trackname,
-            get_human_time(A1),
-            get_human_time(A2)
+            get_human_time(strat_time),
+            get_human_time(end_time)
         ), verbose=verbose)
-        sound[A1:A2].export("%s.mp3" % trackname, format="mp3", bitrate="192k")
+        sound[strat_time:end_time].export("%s.mp3" % trackname, format="mp3", bitrate="192k")
         sysout('Song #%s (%s.mp3) saved.\n' % (n, trackname), verbose=verbose)
