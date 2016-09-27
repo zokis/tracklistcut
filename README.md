@@ -1,8 +1,11 @@
 
-### Tracklist Format Example:
+#### Song Example
+Donwload this Youtube Song: [https://www.youtube.com/watch?v=_NNOaYNqLo8](https://www.youtube.com/watch?v=_NNOaYNqLo8)
 
+#### How to Use
 ```python
-	tracklist = '''0:00:00 ODESZA - Intro
+    from tracklistcut import cut
+    tracklist = '''0:00:00 ODESZA - Intro
 	0:00:27 Onra - Still Broke
 	0:01:33 Bonobo - Silver
 	0:07:30 The Jazzual Suspects - This Beat (Original Mix)
@@ -24,4 +27,6 @@
 	1:03:38 Massive Attack - Teardrop Instrumental
 	1:08:50 Brock Berrigan - The Celebration Song
 	1:11:27 saib. - Shanghai Nights'''.split('\n')
+
+    cut('song.mp3', tracklist)
 ```
