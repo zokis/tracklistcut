@@ -6,7 +6,7 @@ def get_human_time(time):
     return str((time / (1000 * 60)) % 60) + ':' + str((time / 1000) % 60)
 
 
-def cut(file, tracklist):
+def cut(file, tracklist, _regex='(\d:\d{2}:\d{2})[\s?](.*)'):
     print 'Iniciando os trampos'
     print 'AudioSegment...'
     sound = AudioSegment.from_mp3(file)
@@ -14,7 +14,7 @@ def cut(file, tracklist):
     _names = []
     print 'preparando os tempos'
     for track in map(unicode.strip, map(unicode, tracklist)):
-        trackstart, trackname = re.findall('(\d:\d{2}:\d{2})[\s?](.*)', track)[0]
+        trackstart, trackname = re.findall(_regex, track)[0]
         _names.append(trackname)
         _trackstart = map(int, trackstart.split(':'))
         _trackstart[0] = _trackstart[0] * 60 * 60
