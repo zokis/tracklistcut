@@ -3,18 +3,23 @@ import sys
 from pydub import AudioSegment
 
 
+def sysout(string, verbose=True):
+    if verbose:
+        sys.stdout.write(string)
+
+
 def get_human_time(time):
-    return str((time / (1000 * 60)) % 60) + ':' + str((time / 1000) % 60)
+    return str((time / (1000 * 60)) % 60).zfill(2) + ':' + str((time / 1000) % 60).zfill(2)
 
 
-def cut(file, tracklist, _regex='(\d:\d{2}:\d{2})[\s?](.*)'):
-    sys.stdout.write('Starting tracklistcut...\n')
-    sys.stdout.write('Getting sound from mp3 file with AudioSegment...')
+def cut(file, tracklist, _regex='(\d:\d{2}:\d{2})[\s?](.*)', verbose=True):
+    sysout('Starting tracklistcut...\n', verbose=verbose)
+    sysout('Getting sound from mp3 file with AudioSegment...', verbose=verbose)
     sound = AudioSegment.from_mp3(file)
-    sys.stdout.write('...Done.\n')
+    sysout('...Done.\n', verbose=verbose)
     _times = []
     _names = []
-    sys.stdout.write('Preparing times list...')
+    sysout('Preparing times list...', verbose=verbose)
     for track in map(unicode.strip, map(unicode, tracklist)):
         trackstart, trackname = re.findall(_regex, track)[0]
         _names.append(trackname)
@@ -24,7 +29,7 @@ def cut(file, tracklist, _regex='(\d:\d{2}:\d{2})[\s?](.*)'):
         _trackstart[2] = _trackstart[2]
         trackstart_ms = sum(_trackstart) * 1000
         _times.append(trackstart_ms)
-    sys.stdout.write('...Done.\n')
+    sysout('...Done.\n', verbose=verbose)
     _times.append(len(sound))
     _names = iter(_names)
     for n, _ in enumerate(_times):
@@ -33,11 +38,11 @@ def cut(file, tracklist, _regex='(\d:\d{2}:\d{2})[\s?](.*)'):
         A1 = _times[n - 1]
         A2 = _times[n]
         trackname = next(_names)
-        sys.stdout.write('\nCutting song #%s (%s.mp3) [<{%s - %s}>]\n' % (
+        sysout('\nCutting song #%s (%s.mp3) [<{%s - %s}>]\n' % (
             n,
             trackname,
             get_human_time(A1),
             get_human_time(A2)
-        ))
+        ), verbose=verbose)
         sound[A1:A2].export("%s.mp3" % trackname, format="mp3", bitrate="192k")
-        sys.stdout.write('Song #%s (%s.mp3) saved.\n' % (n, trackname))
+        sysout('Song #%s (%s.mp3) saved.\n' % (n, trackname), verbose=verbose)
