@@ -2,6 +2,10 @@ import re
 from pydub import AudioSegment
 
 
+def get_human_time(time):
+    return str((time / (1000 * 60)) % 60) + ':' + str((time / 1000) % 60)
+
+
 def cut(file, tracklist):
     print 'Iniciando os trampos'
     print 'AudioSegment...'
@@ -22,17 +26,17 @@ def cut(file, tracklist):
     _times.append(len(sound))
     _names = iter(_names)
     print 'tempos: ' + str(_times)
-    for n, time in enumerate(range(len(_times))):
+    for n, _ in enumerate(_times):
         if n == 0:
             continue
-        A1 = _times[time - 1]
-        A2 = _times[time]
+        A1 = _times[n - 1]
+        A2 = _times[n]
         trackname = next(_names)
         print 'cortando musica %s (%s) [<{%s - %s}>]' % (
             n,
             trackname,
-            str((A1 / (1000 * 60)) % 60) + ':' + str((A1 / 1000) % 60),
-            str((A2 / (1000 * 60)) % 60) + ':' + str((A2 / 1000) % 60)
+            get_human_time(A1),
+            get_human_time(A2)
         )
         sound[A1:A2].export("%s.mp3" % trackname, format="mp3", bitrate="192k")
         print 'musica %s cortada' % n
