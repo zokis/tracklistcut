@@ -5,7 +5,9 @@ from pydub import AudioSegment
 
 REGEX = [
     '\d\d:\d\d:\d\d',
-    '\d\d:\d\d'
+    '\d:\d\d:\d\d',
+    '\d\d:\d\d',
+    '\d:\d\d'
 ]
 
 
@@ -18,13 +20,19 @@ def get_human_time(time):
     return str((time / (1000 * 60)) % 60).zfill(2) + ':' + str((time / 1000) % 60).zfill(2)
 
 
-def get_better_regex(lines):
+def get_better_regex(line):
+    for _regex in REGEX:
+        m = re.search(_regex, line)
+        if m:
+            return _regex
+
+
+def clean_lines(lines):
+    _lines = []
     for line in lines:
-        for _regex in REGEX:
-            m = re.search(_regex, line)
-            if m:
-                return _regex
-    return _regex
+        if get_better_regex(line):
+            _lines.append(line)
+    return _lines
 
 
 def get_time_trackname(line, _regex):
@@ -36,21 +44,21 @@ def get_time_trackname(line, _regex):
         _trackstart[1] = _trackstart[1] * 60
         _trackstart[2] = _trackstart[2]
     else:
-        _trackstart[0] = _trackstart[1] * 60
-        _trackstart[1] = _trackstart[2]
+        _trackstart[0] = _trackstart[0] * 60
+        _trackstart[1] = _trackstart[1]
 
     trackstart_ms = sum(_trackstart) * 1000
-    trackname = line.replace(time, '').strip()
+    trackname = line.replace(time, '').replace('-', '').strip()
     return trackstart_ms, trackname
 
 
-def get_times_and_names(tracklist, sound, verbose, _regex):
+def get_times_and_names(tracklist, verbose):
     sysout('Preparing times list', verbose=verbose)
     _times = []
     _names = []
     for line in map(unicode.strip, map(unicode, tracklist)):
-        sysout('.')
-        time, trackname = get_time_trackname(line, _regex)
+        sysout('.', verbose=verbose)
+        time, trackname = get_time_trackname(line, get_better_regex(line))
         _times.append(time)
         _names.append(trackname)
     return _times, _names
@@ -59,6 +67,7 @@ def get_times_and_names(tracklist, sound, verbose, _regex):
 def cut(file, tracklist, verbose=True):
     if not isinstance(tracklist, (list, tuple)):
         tracklist = tracklist.split('\n')
+    tracklist = clean_lines(tracklist)
 
     sysout('Starting tracklistcut...\n', verbose=verbose)
     sysout('Getting sound from mp3 file with AudioSegment...', verbose=verbose)
@@ -66,9 +75,7 @@ def cut(file, tracklist, verbose=True):
     sysout('...Done.\n', verbose=verbose)
     _times, _names = get_times_and_names(
         tracklist,
-        sound,
-        verbose,
-        get_better_regex(tracklist)
+        verbose
     )
     _names = iter(_names)
     _times.append(len(sound))
@@ -87,7 +94,3 @@ def cut(file, tracklist, verbose=True):
         ), verbose=verbose)
         sound[strat_time:end_time].export("%s.mp3" % trackname, format="mp3", bitrate="192k")
         sysout('Song #%s (%s.mp3) saved.\n' % (n, trackname), verbose=verbose)
-
-
-if __name__ == '__main__':
-    cut(sys.argv[1], open(sys.argv[2], 'r').readlines())
