@@ -1,4 +1,5 @@
 import argparse
+import codecs
 from tracklistcut import cut
 
 parser = argparse.ArgumentParser(description='cut an MP3 file into multiple files')
@@ -15,6 +16,6 @@ if __name__ == '__main__':
         verbose = False
     cut(
         args.audio_file,
-        open(args.tracklist_file, 'r').readlines(),
+        codecs.open(args.tracklist_file, 'r', 'utf-8').readlines(),
         verbose=verbose
     )
