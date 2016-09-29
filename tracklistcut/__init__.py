@@ -60,14 +60,18 @@ def get_times_and_names(tracklist, verbose):
         sysout('.', verbose=verbose)
         time, trackname = get_time_trackname(line, get_better_regex(line))
         _times.append(time)
-        _names.append(unicode(n) + ' ' + trackname)
+        _names.append(unicode(n).zfill(3) + ' ' + trackname)
     return _times, _names
 
 
-def cut(file, tracklist, verbose=True):
+def cut(file, tracklist, verbose=True, artist='Various artists', album='None', year='2016'):
     if not isinstance(tracklist, (list, tuple)):
         tracklist = tracklist.split('\n')
     tracklist = clean_lines(tracklist)
+
+    sysout('Cutting the %s Album\n' % album, verbose=verbose)
+    sysout('Artist %s\n' % artist, verbose=verbose)
+    sysout('year %s\n' % year, verbose=verbose)
 
     sysout('Starting tracklistcut...\n', verbose=verbose)
     sysout('Getting sound from mp3 file with AudioSegment...', verbose=verbose)
@@ -92,5 +96,10 @@ def cut(file, tracklist, verbose=True):
             get_human_time(strat_time),
             get_human_time(end_time)
         ), verbose=verbose)
-        sound[strat_time:end_time].export("%s.mp3" % trackname, format="mp3", bitrate="192k")
+        sound[strat_time:end_time].export(
+            "%s.mp3" % trackname,
+            format="mp3",
+            bitrate="192k",
+            tags={'artist': artist, 'album': album, 'year': year}
+        )
         sysout('Song #%s (%s.mp3) saved.\n' % (n, trackname), verbose=verbose)
