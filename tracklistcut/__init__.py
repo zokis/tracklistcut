@@ -56,11 +56,11 @@ def get_times_and_names(tracklist, verbose):
     sysout('Preparing times list', verbose=verbose)
     _times = []
     _names = []
-    for line in map(unicode.strip, map(unicode, tracklist)):
+    for n, line in enumerate(map(unicode.strip, map(unicode, tracklist))):
         sysout('.', verbose=verbose)
         time, trackname = get_time_trackname(line, get_better_regex(line))
         _times.append(time)
-        _names.append(trackname)
+        _names.append(unicode(n) + ' ' + trackname)
     return _times, _names
 
 
