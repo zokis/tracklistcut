@@ -64,10 +64,24 @@ def get_times_and_names(tracklist, verbose):
     return _times, _names
 
 
-def cut(file, tracklist, verbose=True, artist='Various artists', album='None', year='2016'):
-    if not isinstance(tracklist, (list, tuple)):
-        tracklist = tracklist.split('\n')
-    tracklist = clean_lines(tracklist)
+def cut(file, tracklist=None, verbose=True, artist='Various artists', album='None', year='2016', json=None, out_path=''):
+    if not json:
+        if not isinstance(tracklist, (list, tuple)):
+            tracklist = tracklist.split('\n')
+        tracklist = clean_lines(tracklist)
+        _times, _names = get_times_and_names(
+            tracklist,
+            verbose
+        )
+    else:
+        artist = json['artist']
+        album = json['album']
+        year = json['year']
+        _times = [time for time, name in json['tracklist']]
+        _names = [name for time, name in json['tracklist']]
+
+    if not out_path.endswith('/'):
+        out_path += '/'
 
     sysout('Cutting the %s Album\n' % album, verbose=verbose)
     sysout('Artist %s\n' % artist, verbose=verbose)
@@ -77,10 +91,7 @@ def cut(file, tracklist, verbose=True, artist='Various artists', album='None', y
     sysout('Getting sound from mp3 file with AudioSegment...', verbose=verbose)
     sound = AudioSegment.from_mp3(file)
     sysout('...Done.\n', verbose=verbose)
-    _times, _names = get_times_and_names(
-        tracklist,
-        verbose
-    )
+    
     _names = iter(_names)
     _times.append(len(sound))
     sysout('...Done.\n', verbose=verbose)
@@ -97,7 +108,7 @@ def cut(file, tracklist, verbose=True, artist='Various artists', album='None', y
             get_human_time(end_time)
         ), verbose=verbose)
         sound[strat_time:end_time].export(
-            "%s.mp3" % trackname,
+            "{}{}.mp3".format(out_path, trackname),
             format="mp3",
             bitrate="192k",
             tags={'artist': artist, 'album': album, 'year': year}
