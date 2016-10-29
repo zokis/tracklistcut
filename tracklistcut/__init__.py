@@ -107,8 +107,15 @@ def cut(file, tracklist=None, verbose=True, artist='Various artists', album='Non
             get_human_time(strat_time),
             get_human_time(end_time)
         ), verbose=verbose)
+
+        file_path = "{}{}.mp3".format(out_path, trackname)
+
+        if os.path.exist(file_path):
+            trackname = "{}_{}".format(trackname, n)
+            file_path = "{}{}.mp3".format(out_path, trackname)
+
         sound[strat_time:end_time].export(
-            "{}{}.mp3".format(out_path, trackname),
+            file_path,
             format="mp3",
             bitrate="192k",
             tags={'artist': artist, 'album': album, 'year': year}
